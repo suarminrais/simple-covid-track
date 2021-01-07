@@ -11,6 +11,8 @@ import { Box, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 function rand() {
   return Math.round(Math.random() * 20) - 10;
@@ -70,6 +72,17 @@ const DataPreview = () => {
       .then(() => setOpen(false))
   }
 
+  const handleDelete = (id) => {
+    fetch('http://localhost:9200/data/_doc/' + id, {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+      .then(res => res.json())
+      .then(() => { })
+  }
+
   useEffect(() => {
     fetch('http://localhost:9200/data/_search')
       .then(response => response.json())
@@ -104,6 +117,7 @@ const DataPreview = () => {
               <TableCell align="right">Kasus</TableCell>
               <TableCell align="right">Meninggal</TableCell>
               <TableCell align="right">Sembuh</TableCell>
+              <TableCell align="right">Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -115,12 +129,17 @@ const DataPreview = () => {
                 <TableCell align="right">{row["_source"].kasus}</TableCell>
                 <TableCell align="right">{row["_source"].meninggal}</TableCell>
                 <TableCell align="right">{row["_source"].sembuh}</TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => handleDelete(row["_id"])} color="secondary" aria-label="delete">
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-    </Box>
+    </Box >
   )
 }
 
