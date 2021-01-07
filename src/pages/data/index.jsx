@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -49,20 +49,7 @@ const DataPreview = () => {
   const [meninggal, setMeninggal] = useState('')
   const [sembuh, setSembuh] = useState('')
   const [modalStyle] = useState(getModalStyle)
-  const [items, setItems] = useState([
-    {
-      daerah: "Jakarta",
-      kasus: 200,
-      meninggal: 20,
-      sembuh: 100
-    },
-    {
-      daerah: "Jakarta Barat",
-      kasus: 100,
-      meninggal: 10,
-      sembuh: 50
-    },
-  ])
+  const [items, setItems] = useState()
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -75,6 +62,12 @@ const DataPreview = () => {
     setItems(items)
     setOpen(false)
   }
+
+  useEffect(() => {
+    fetch('http://localhost:9200/data/_search')
+      .then(response => response.json())
+      .then(({ hits: { hits } }) => setItems(hits));
+  })
 
   return (
     <Box>
@@ -104,14 +97,14 @@ const DataPreview = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((row, i) => (
+            {items?.map((row, i) => (
               <TableRow key={i}>
                 <TableCell component="th" scope="row">
-                  {row.daerah}
+                  {row["_source"].daerah}
                 </TableCell>
-                <TableCell align="right">{row.kasus}</TableCell>
-                <TableCell align="right">{row.meninggal}</TableCell>
-                <TableCell align="right">{row.sembuh}</TableCell>
+                <TableCell align="right">{row["_source"].kasus}</TableCell>
+                <TableCell align="right">{row["_source"].meninggal}</TableCell>
+                <TableCell align="right">{row["_source"].sembuh}</TableCell>
               </TableRow>
             ))}
           </TableBody>
