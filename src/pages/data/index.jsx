@@ -50,24 +50,34 @@ const DataPreview = () => {
   const [sembuh, setSembuh] = useState('')
   const [modalStyle] = useState(getModalStyle)
   const [items, setItems] = useState()
+  const [total, setTotal] = useState()
 
   const handleSubmit = e => {
     e.preventDefault()
-    items.push({
-      daerah,
-      kasus,
-      meninggal,
-      sembuh
+    fetch('http://localhost:9200/data/_doc/' + (parseInt(total) + 1), {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        daerah,
+        kasus,
+        meninggal,
+        sembuh
+      })
     })
-    setItems(items)
-    setOpen(false)
+      .then(res => res.json())
+      .then(() => setOpen(false))
   }
 
   useEffect(() => {
     fetch('http://localhost:9200/data/_search')
       .then(response => response.json())
-      .then(({ hits: { hits } }) => setItems(hits));
-  })
+      .then(({ hits: { hits, total: { value } } }) => {
+        setItems(hits)
+        setTotal(value)
+      });
+  }, [items])
 
   return (
     <Box>
